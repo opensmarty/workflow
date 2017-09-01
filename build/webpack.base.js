@@ -22,11 +22,11 @@ var isLine = process.env.NODE_ENV === 'production';
 // webpack 基础配置
 var config = {
     entry: {
-        'vendor': ['./src/libs/vendor/jquery.js', './src/libs/vendor/bootstrap.js', './src/libs/vendor/underscore.js']
+        'vendor': ['./src/libs/vendor/jquery.js', './src/libs/vendor/bootstrap.js', './src/libs/vendor/underscore.js','./src/assets/css/bootstrap.css','./src/assets/css/bootstrap-theme.css']
     },
     output: {
-        path: path.resolve(__dirname, '../static'),
-        publicPath: '',
+        path: path.resolve(__dirname, '../dist'),
+        publicPath: '/',
         filename: isLine ? 'static/js/[name].[chunkhash:5].js' : 'static/js/[name].js',
         chunkFilename: isLine ? 'chunk/[id][name]-[chunkhash:5].js' : 'chunk/[id][name].js?[chunkhash:5]',
     },
@@ -35,7 +35,7 @@ var config = {
     },
     module: {
         rules: [{
-                test: /\.js$/,
+                test: /\.(js|jsx)$/,
                 exclude: /(node_modules)/, // 排除node_modules 文件
                 use: {
                     loader: 'babel-loader',
@@ -51,7 +51,7 @@ var config = {
                     // 编译后使用什么loader来提取css文件，如下使用 style-loader 来提取
                     fallback: 'style-loader',
                     // 需要什么样的loader去编译文件，比如如下使用css-loader 去编译文件
-                    use: ['css-loader']
+                    use: ['css-loader', 'postcss-loader']
                 })
             },
             {
@@ -60,7 +60,8 @@ var config = {
                     fallback: 'style-loader',
                     use: [
                         'css-loader',
-                        'sass-loader'
+                        'sass-loader',
+                        'postcss-loader'
                     ]
                 })
             },
@@ -70,7 +71,8 @@ var config = {
                     fallback: 'style-loader',
                     use: [
                         'css-loader',
-                        'stylus-loader'
+                        'stylus-loader',
+                        'postcss-loader'
                     ]
                 })
             },
@@ -138,7 +140,6 @@ var entries = getEntries('./src/pages/*/index.js');
 var hot = 'webpack-hot-middleware/client?reload=true';
 entries['index'] = './src/index.js';
 console.log(' entries', entries);
-
 // 获取入口文件的长度
 var entriesLength = Object.keys(entries).length;
 
@@ -165,7 +166,7 @@ if (entriesLength === 1) {
             chunksSortMode: 'dependency',
             minify: { //压缩HTML文件
                 removeComments: isLine ? true : false, // true 移除HTML中的注释
-                collapseWhitespace: isLine ? false : true //删除空白符与换行符
+                collapseWhitespace: isLine ? true : false //删除空白符与换行符
             }
         });
         config.plugins.push(htmlPlugin);
@@ -198,7 +199,7 @@ if (entriesLength === 1) {
             chunksSortMode: 'dependency',
             minify: { //压缩HTML文件
                 removeComments: isLine ? true : false, // true 移除HTML中的注释
-                collapseWhitespace: isLine ? false : true //删除空白符与换行符
+                collapseWhitespace: isLine ? true : false //删除空白符与换行符
             }
         });
         config.plugins.push(htmlPlugin);
@@ -209,7 +210,7 @@ if (entriesLength === 1) {
     }));
 }
 
- /* 跟业务代码一样，该兼容的还是得兼容 */
+/* 跟业务代码一样，该兼容的还是得兼容 */
 config.plugins.push(
     new Webpack.ProvidePlugin({
         $: 'jquery',

@@ -1,5 +1,4 @@
 require('shelljs/global');
-env.NODE_ENV = 'production';
 var ora = require('ora');
 var chalk = require('chalk');
 var Webpack = require('webpack');
@@ -24,7 +23,7 @@ var spinner = ora({
 });
 spinner.start();
 
-rm('-rf', '../static/');
+rm('-rf', '../dist/');
 baseConfig = merge(baseConfig, {
     devtool: 'source-map',
     plugins: [
@@ -43,10 +42,10 @@ baseConfig = merge(baseConfig, {
 
         new Webpack.optimize.DedupePlugin(), //删除类似的重复代码
         new Webpack.optimize.OccurrenceOrderPlugin(), //计算优化分配模块
-        // new Webpack.DefinePlugin({
-        //     'process.env.NODE_ENV': JSON.stringify('production'),
-        //     __DEV__: false
-        // }),
+        new Webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('production'),
+            __DEV__: false
+        }),
         new Webpack.NoErrorsPlugin(),
         // 生成打包资源列表 json 文件
         new WebpackManifestPlugin(),

@@ -7,13 +7,12 @@ var history = require('connect-history-api-fallback');
 var webpackMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require('webpack-hot-middleware');
 var config = require('./webpack.base');
-// config.plugins.push(
-//      new Webpack.DefinePlugin({
-//           'process.env.NODE_ENV': JSON.stringify('development'),
-//           __DEV__: true
-// }));
 config = merge(config, {
   plugins: [
+    new Webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('development'),
+            __DEV__: true
+    }),
     new Webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
@@ -46,7 +45,7 @@ app.use(middleware);
 app.use(webpackHotMiddleware(compiler, {
   heartbeat: 2000
 }));
-app.use(express.static(path.join(__dirname, '../static/')));
+app.use(express.static(path.join(__dirname, '../dist/')));
 app.use(history());
 
 app.listen(port, function onStart(err) {
