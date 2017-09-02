@@ -1,3 +1,4 @@
+// npm install [-g] shelljs
 require('shelljs/global');
 var ora = require('ora');
 var chalk = require('chalk');
@@ -8,6 +9,7 @@ var baseConfig = require('./webpack.base');
 var WebpackManifestPlugin = require('webpack-manifest-plugin');
 var WebpackChunkHash = require('webpack-chunk-hash');
 var ChunkManifestPlugin = require('chunk-manifest-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 console.log(
     '\n' +
@@ -23,13 +25,21 @@ var spinner = ora({
 });
 spinner.start();
 
-rm('-rf', '../dist/');
+rm('-rf', '../public/');
+mkdir('../public');
+
 baseConfig = merge(baseConfig, {
     devtool: 'source-map',
     plugins: [
+        new Webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify('production')
+            },
+            '__DEV__': false
+        }),
         new Webpack.optimize.UglifyJsPlugin({
             output: {
-                comments: false,  // remove all comments
+                comments: false // remove all comments
             },
             compressor: {
                 warnings: false,
@@ -39,27 +49,21 @@ baseConfig = merge(baseConfig, {
             },
             sourceMap: true
         }),
-
-        new Webpack.optimize.DedupePlugin(), //删除类似的重复代码
         new Webpack.optimize.OccurrenceOrderPlugin(), //计算优化分配模块
-        new Webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('production'),
-            __DEV__: false
-        }),
-        new Webpack.NoErrorsPlugin(),
+        new Webpack.NoEmitOnErrorsPlugin(),
         // 生成打包资源列表 json 文件
-        new WebpackManifestPlugin(),
+        // new WebpackManifestPlugin(),
         // 取代 webpack 原生的 hash 函数
-        new WebpackChunkHash(),
+        // new WebpackChunkHash(),
         // 标识每个模块 hash 值，当你添加新的模块时，如果该模块的依赖影响到别的模块
         // 就可以更新这些受影响的模块从而区分旧的模块
         new Webpack.HashedModuleIdsPlugin(),
 
         // 生成资源映射文件，包含文件名以及与其对应的hash过的文件名，用于其他插件或者服务
-        new ChunkManifestPlugin({
-            filename: 'chunk-manifest.json',
-            manifestVariable: 'webpackManifest'
-        })
+        // new ChunkManifestPlugin({
+        //     filename: 'chunk-manifest.json',
+        //     manifestVariable: 'webpackManifest'
+        // })
     ]
 });
 

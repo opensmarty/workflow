@@ -16,8 +16,10 @@
   "main": "./src/main.js",
   "scripts": {
     "test": "echo 'Error: no test specified'",
-    "dev": "node build/webpack.dev.js",
-    "build": "node build/webpack.build.js"
+    "clear": "rm -rf public&& mkdir public",
+    "start": "cross-env NODE_ENV=development node build/webpack.dev.js",
+    "build": "cross-env NODE_ENV=development node build/webpack.prod.js",
+    "release": "cross-env NODE_ENV=production node build/webpack.prod.js"
   },
   "repository": {
     "type": "git",
@@ -47,7 +49,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
     "babel-runtime": "^6.26.0",
-    "boostrap": "^1.0.0",
+    "bootstrap": "^3.3.7",
     "bootstrap-sass": "^3.3.7",
     "browser-sync": "^2.18.13",
     "browserify": "^14.4.0",
@@ -55,6 +57,8 @@
     "chunk-manifest-webpack-plugin": "^1.1.2",
     "clean-webpack-plugin": "^0.1.16",
     "connect-history-api-fallback": "^1.3.0",
+    "copy-webpack-plugin": "^4.0.1",
+    "cross-env": "^5.0.5",
     "css-loader": "^0.28.7",
     "del": "^3.0.0",
     "ejs-loader": "^0.3.0",
@@ -117,8 +121,11 @@
     "json-loader": "^0.5.7",
     "jsx-loader": "^0.13.2",
     "lodash": "^4.17.4",
+    "md5": "^2.2.1",
     "minimist": "^1.2.0",
+    "moment": "^2.18.1",
     "node-sass": "^4.5.3",
+    "open-browser-webpack-plugin": "^0.0.5",
     "opn": "^5.1.0",
     "ora": "^1.3.0",
     "path": "^0.12.7",
@@ -127,12 +134,12 @@
     "pump": "^1.0.2",
     "run-sequence": "^2.1.0",
     "sass-loader": "^6.0.6",
-    "shelljs": "^0.7.8",
     "strip-loader": "^0.1.2",
     "style-loader": "^0.18.2",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
     "uglifyjs-webpack-plugin": "^0.4.6",
+    "underscore": "^1.8.3",
     "url-loader": "^0.5.9",
     "vinyl-buffer": "^1.0.0",
     "vinyl-paths": "^2.1.0",
@@ -145,6 +152,7 @@
     "vue-router": "^2.7.0",
     "vue-style-loader": "^3.0.1",
     "vue-template-compiler": "^2.4.2",
+    "vue-validator": "^3.0.0-alpha.2",
     "vuex": "^2.4.0",
     "webpack": "^3.5.5",
     "webpack-bundle-analyzer": "^2.9.0",
@@ -155,7 +163,6 @@
     "webpack-hot-middleware": "^2.18.2",
     "webpack-manifest-plugin": "^1.3.1",
     "webpack-merge": "^4.1.0",
-    "webpack-plugin-manifest": "^1.1.0",
     "yargs": "^8.0.2"
   }
 }

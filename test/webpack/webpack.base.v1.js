@@ -4,7 +4,7 @@ var glob = require('glob');
 // base
 var Webpack = require('webpack');
 // 能将所有入口中引用的 *.css ，移动到独立分离的css文件。可以放到一个单独的css文件当中。
-var HtmlWebpackInlineAssetsPlugin = require('html-webpack-inline-assets-plugin');
+// var    HtmlWebpackInlineAssetsPlugin = require('html-webpack-inline-assets-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 // 压缩html
 var HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -13,30 +13,30 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 //     WebpackStrip = require('strip-loader'),
 // CleanWebpackPlugin = require('clean-webpack-plugin');
 
+
 // 定义目录
 var ROOT_PATH = path.resolve(__dirname, '../');
 var APP_PATH = ROOT_PATH + '/src';
 var NODE_PATH = ROOT_PATH + '/node_modules';
 // 判断是否是开发环境 还是线上环境
 var isLine = process.env.NODE_ENV === 'production';
-console.log('-------------:' + isLine);
+
 // webpack 基础配置
 var config = {
     entry: {
-        'vendor': ['vue', 'vuex', 'vue-router', 'jquery', 'bootstrap', 'underscore', 'md5', 'bootstrap-css', 'bootstrap-theme-css']
+        'vendor': ['vue', 'vuex', 'vue-router', 'jquery', 'bootstrap', 'underscore', 'md5']
     },
     output: {
-        path: path.resolve(__dirname, '../public'),
+        path: path.resolve(__dirname, '../dist'),
         publicPath: '/',
         filename: isLine ? 'static/js/[name].[chunkhash:5].js' : 'static/js/[name].js',
         chunkFilename: isLine ? 'chunk/[id][name]-[chunkhash:5].js' : 'chunk/[id][name].js?[chunkhash:5]',
     },
     resolve: {
-        // require时省略的扩展名，遇到.vue结尾的也要去加载
-        extensions: ['*', '.js', '.vue', '.json', '.scss'],
+        extensions: ['*', '.js', '.json', '.css', '.scss', 'styl'],
+
         //模块别名定义，方便后续直接引用别名，无须多写长长的地址
         alias: {
-            // 第三方库
             'vue': NODE_PATH + '/vue/dist/vue.min.js',
             'vuex': NODE_PATH + '/vuex/dist/vuex.min.js',
             'vue-router': NODE_PATH + '/vue-router/dist/vue-router.min.js',
@@ -44,11 +44,7 @@ var config = {
             'bootstrap': NODE_PATH + '/bootstrap/dist/js/bootstrap.min.js',
             'underscore': NODE_PATH + '/underscore/underscore-min.js',
             'moment': NODE_PATH + '/moment/min/moment.min.js',
-            'md5': NODE_PATH + '/md5/md5.js',
-            // 样式
-            'bootstrap-css': NODE_PATH + '/bootstrap/dist/css/bootstrap.css',
-            'bootstrap-theme-css': NODE_PATH + '/bootstrap/dist/css/bootstrap-theme.css'
-
+            'md5': NODE_PATH + '/md5/md5.js'
         }
     },
     module: {
@@ -67,7 +63,7 @@ var config = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['es2015'],
+                        presets: ['es2015', 'stage-0'],
                         plugins: ['transform-runtime']
                     }
                 }
@@ -76,11 +72,12 @@ var config = {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                     // 编译后使用什么loader来提取css文件，如下使用 style-loader 来提取
-                    fallback: "style-loader",
+                    fallback: 'style-loader',
+                    // 需要什么样的loader去编译文件，比如如下使用css-loader 去编译文件
                     use: [{
                         loader: 'css-loader',
                         options: {
-                            minimize: isLine // css压缩
+                            minimize: true // css压缩
                         }
                     }, 'postcss-loader']
                 })
@@ -88,16 +85,41 @@ var config = {
             {
                 test: /\.scss$/,
                 use: ExtractTextPlugin.extract({
-                    // 编译后使用什么loader来提取css文件，如下使用 style-loader 来提取
-                    fallback: "style-loader",
+                    fallback: 'style-loader',
                     use: [{
-                        loader: 'css-loader',
-                        options: {
-                            minimize: isLine // css压缩
-                        }
-                    }, 'postcss-loader', 'sass-loader']
+                            loader: 'css-loader',
+                            options: {
+                                minimize: true // css压缩
+                            }
+                        },
+                        // 'css-loader',压缩要用上面
+                        'postcss-loader',
+                        'sass-loader'
+                    ]
                 })
             },
+            // {
+            //     test: /\.less$/,
+            //     use: ExtractTextPlugin.extract({
+            //         fallback: 'style-loader',
+            //         use: [
+            //             'css-loader',
+            //             'less-loader',
+            //             'postcss-loader'
+            //         ]
+            //     })
+            // },
+            // {
+            //     test: /\.styl$/,
+            //     use: ExtractTextPlugin.extract({
+            //         fallback: 'style-loader',
+            //         use: [
+            //             'css-loader',
+            //             'stylus-loader',
+            //             'postcss-loader'
+            //         ]
+            //     })
+            // },
             {
                 test: /\.json$/,
                 use: 'json-loader'
@@ -114,7 +136,7 @@ var config = {
                     loader: 'url-loader',
                     options: {
                         limit: 10000,
-                        name: 'static/images/[name].[hash:5].[ext]'
+                        name: 'static/images/[name].[hash:5].[ext]',
                         //publicPath: '../../'
                     }
                 }
@@ -124,7 +146,7 @@ var config = {
                 use: {
                     loader: "file-loader",
                     options: {
-                        name: 'static/fonts/[name].[hash:5].[ext]'
+                        name: 'static/fonts/[name].[hash:5].[ext]',
                         //publicPath: '../../',
                     }
                 }
@@ -137,7 +159,7 @@ var config = {
             filename: 'static/css/[name].[contenthash:5].css',
             allChunks: true,
             // 是否禁用插件 线上不禁用，日常环境禁用(如果不禁用的话，热加载就不会实时生效)
-            disable:  isLine ? false : true
+            disable: isLine ? false : true
         })
     ]
 }
@@ -161,7 +183,7 @@ function getEntries(paths) {
 var entries = getEntries('./src/pages/*/index.js');
 var hot = 'webpack-hot-middleware/client?reload=true';
 entries['index'] = './src/index.js';
-console.log('entries', entries);
+console.log(' entries', entries);
 // 获取入口文件的长度
 var entriesLength = Object.keys(entries).length;
 
@@ -178,17 +200,17 @@ if (entriesLength === 1) {
     Object.keys(entries).forEach(function(name) {
         config.entry[name] = isLine ? entries[name] : [hot, entries[name]];
         var htmlPlugin = new HtmlWebpackPlugin({
-            favicon: 'src/assets/images/favicon.ico', //favicon路径是项目根目录，通过webpack引入同时可以生成hash值
+            // favicon: './favicon.ico', //favicon路径，通过webpack引入同时可以生成hash值
             filename: name + '.html', //生成的html存放路径，相对于path
             template: name === 'index' ? './src/index.html' : './src/pages/' + name + '/index.html', //html模板路径
+
             inject: true, //js插入的位置，true/'head'/'body'/false
             hash: true, //为静态资源生成hash值
             chunks: [name, 'vendor', 'manifest'], //需要引入的chunk，不配置就会引入所有页面的资源
             chunksSortMode: 'dependency',
             minify: { //压缩HTML文件
-                removeComments: isLine, // true 移除HTML中的注释
-                collapseWhitespace: isLine, //删除空白符与换行符
-                caseSensitive: false,             //是否大小写敏感
+                removeComments: isLine ? true : false, // true 移除HTML中的注释
+                collapseWhitespace: isLine ? true : false //删除空白符与换行符
             }
         });
         config.plugins.push(htmlPlugin);
@@ -212,7 +234,7 @@ if (entriesLength === 1) {
     Object.keys(entries).forEach(function(name) {
         config.entry[name] = isLine ? entries[name] : [hot, entries[name]];
         var htmlPlugin = new HtmlWebpackPlugin({
-            favicon: 'src/assets/images/favicon.ico', //favicon路径，通过webpack引入同时可以生成hash值
+            // favicon: './favicon.ico', //favicon路径，通过webpack引入同时可以生成hash值
             filename: name + '.html',
             template: name === 'index' ? './src/index.html' : './src/pages/' + name + '/index.html',
             inject: true,
@@ -220,9 +242,8 @@ if (entriesLength === 1) {
             chunks: [name, name + '.vendor', 'vendor', 'manifest'],
             chunksSortMode: 'dependency',
             minify: { //压缩HTML文件
-                removeComments: isLine, // true 移除HTML中的注释
-                collapseWhitespace: isLine, //删除空白符与换行符
-                caseSensitive: false,             //是否大小写敏感
+                removeComments: isLine ? true : false, // true 移除HTML中的注释
+                collapseWhitespace: isLine ? true : false //删除空白符与换行符
             }
         });
         config.plugins.push(htmlPlugin);
@@ -232,12 +253,15 @@ if (entriesLength === 1) {
         minChunks: 2
     }));
 }
+
 /* 跟业务代码一样，该兼容的还是得兼容 */
 config.plugins.push(
     new Webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
         'window.jQuery': 'jquery',
-        'window.$': 'jquery'
+        'window.$': 'jquery',
+        _: 'underscore',
+        'window._': 'underscore'
     }));
 module.exports = config;
